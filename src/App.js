@@ -1,23 +1,10 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import PdfViewer from "./components/PdfViewer";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="flex items-center justify-center w-full h-screen bg-gray-200">
+      <PdfViewer />
     </div>
   );
 }
