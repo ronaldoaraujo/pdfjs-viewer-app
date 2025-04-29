@@ -3,9 +3,16 @@ import * as pdfjsViewer from "pdfjs-dist/web/pdf_viewer";
 import "pdfjs-dist/web/pdf_viewer.css";
 import { useEffect, useRef } from "react";
 
-export default function PdfViewer() {
+// import { assinatura } from '../../public/assinatura.png';
+
+
+export default function PdfViewer({signUser, url}) {
   const outerContainerRef = useRef(null);
   const innerViewerRef = useRef(null);
+
+  const closeElement = (e) => {
+    console.log("fechar elemento", e)
+  }
 
   const getClick = () => {
     const pageElements = innerViewerRef.current.querySelectorAll('.page');
@@ -17,14 +24,49 @@ export default function PdfViewer() {
           const y = event.clientY - rect.top;
           const pageNum = index + 1;
 
+          const hasDiv = document.getElementById(signUser);
+          if(hasDiv) {
+            console.log('div ja existe')
+          } else {
+            const rubricaDiv = document.createElement('div');
+            rubricaDiv.id = signUser;
+            rubricaDiv.style.position = 'absolute';
+            rubricaDiv.style.left = `${x}px`;
+            rubricaDiv.style.top = `${y}px`;
+            rubricaDiv.style.width = '200px';
+            rubricaDiv.style.height = '60px';
+            rubricaDiv.style.backgroundColor = '#cf0a0a';
+            rubricaDiv.style.zIndex = 999999;
+
+            const close = document.createElement('button');
+            close.innerHTML = 'X';
+            close.style.position = 'relative';
+            close.style.top = '-20px';
+            close.style.color = '#000000';
+            rubricaDiv.appendChild(close)
+
+            const spanElement = document.createElement('span');
+            spanElement.innerHTML = `Assinatura do ${signUser}`;
+            rubricaDiv.appendChild(spanElement);
+
+            const rubricaImg = document.createElement('img');
+            rubricaImg.src = 'https://ibdt.org.br/site/wp-content/uploads/2022/03/assinatura-ricardo.png';
+            rubricaImg.style.width = '100%';
+            rubricaImg.style.height = '100%';
+            rubricaImg.style.objectFit = 'contain';
+            rubricaDiv.appendChild(rubricaImg);
+
+            pageElement.appendChild(rubricaDiv);
+          }
+
           console.log(`Você clicou na Página ${pageNum} nas coordenadas X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}`);
           // alert(`Página: ${pageNum}\nX: ${x.toFixed(2)}\nY: ${y.toFixed(2)}`);
         });
       });
   }
-
+  console.log("signUser", signUser)
   useEffect(() => {
-    const DEFAULT_URL = "https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/web/compressed.tracemonkey-pldi-09.pdf";
+    const DEFAULT_URL = url;
     const SCALE = 1.0;
 
     pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
