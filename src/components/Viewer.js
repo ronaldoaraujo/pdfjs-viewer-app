@@ -3,7 +3,7 @@ import * as pdfjsViewer from "pdfjs-dist/web/pdf_viewer";
 import "pdfjs-dist/web/pdf_viewer.css";
 import { useEffect, useRef, useState } from "react";
 
-export default function Viewer({url}) {
+export default function Viewer({signUser, url}) {
   const outerContainerRef = useRef(null);
   const innerViewerRef = useRef(null);
 
@@ -36,13 +36,11 @@ export default function Viewer({url}) {
     loadingTask.promise.then((pdfDocument) => {
       pdfViewer.setDocument(pdfDocument);
 
-      setTimeout(() => {
         const pageElements = innerViewerRef.current.querySelectorAll('.page');
 
         pageElements.forEach((pageElement, pageIndex) => {
           pageElement.addEventListener('click', (event) => {
             const rect = pageElement.getBoundingClientRect();
-            console.log("cheguei aqui", rect);
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
             const pageNum = pageIndex + 1;
@@ -57,9 +55,9 @@ export default function Viewer({url}) {
             };
 
             setRubricas((prev) => [...prev, newRubrica]);
+
           });
         });
-      }, 500);
     });
   }, []);
 
@@ -67,7 +65,7 @@ export default function Viewer({url}) {
   const handleDrag = (id, e) => {
     const deltaX = e.movementX;
     const deltaY = e.movementY;
-
+    console.log("handleDrag", id)
     setRubricas((prev) =>
       prev.map((rubrica) =>
         rubrica.id === id
@@ -87,16 +85,18 @@ export default function Viewer({url}) {
       ref={outerContainerRef}
       className="w-full h-screen overflow-auto bg-gray-200"
       style={{
-        position: 'relative'
+        position: 'absolute'
       }}
     >
       <div ref={innerViewerRef} className="pdfViewer singlePageView" />
 
       {/* 🎯 Renderizar as rubricas */}
+      {/* {console.log("rubricas antes do map", rubricas)} */}
       {rubricas.map((rubrica) => (
         <div
           key={rubrica.id}
-          className="relative cursor-move group"
+          className="cursor-move group"
+          id={`${Date.now()}`}
           style={{
             top: `${rubrica.y}px`,
             left: `${rubrica.x}px`,
@@ -107,6 +107,7 @@ export default function Viewer({url}) {
           }}
           onMouseDown={(e) => {
             e.preventDefault();
+            e.stopPropagation();
             const move = (eMove) => handleDrag(rubrica.id, eMove);
             const stop = () => {
               window.removeEventListener('mousemove', move);
